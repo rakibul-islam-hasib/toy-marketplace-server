@@ -27,11 +27,35 @@ async function run() {
         await client.connect();
         const database = client.db("toyStore");
         const toysCollection = database.collection("toys");
+
+        app.get('/api/toys', async (req, res) => {
+            const query = req.query;
+            const limit = parseInt(query.limit) || 10;
+            const page = parseInt(query.page) || 0;
+            const skip = (page - 1) * limit;
+            const cursor = toysCollection.find().skip(skip).limit(limit);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // ! Make Search API
+        app.get('/api/search', async (req, res) => {
+            const query = req.query;
+            const limit = parseInt(query.limit) || 10;
+            const page = parseInt(query.page) || 0;
+            const skip = (page - 1) * limit;
+            const cursor = toysCollection.find({ toyName: { $regex: query.search, $options: 'i' } }).skip(skip).limit(limit);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        app.get('/api/total-toys', async (req, res) => {
+            const result = await toysCollection.estimatedDocumentCount();
+            res.send({ totalToys: result });
+        })
         app.post('/api/add-toy', async (req, res) => {
             const toy = req.body;
             const result = await toysCollection.insertOne(toy);
-            console.log(toy);
-            res.json(result);
+            // console.log(toy);
+            res.send(result);
         });
 
 
