@@ -79,20 +79,25 @@ async function run() {
             const limit = parseInt(query.limit);
             const page = parseInt(query.page);
             const skip = (page - 1) * limit;
-
-            
             if (!limit && !page) {
                 const cursor = toysCollection.find({ email: query.email });
                 const result = await cursor.toArray();
                 res.send(result);
-            } else{
+            } else {
                 const cursor = toysCollection.find({ email: query.email }).skip(skip).limit(limit);
                 const result = await cursor.toArray();
-                
+
                 res.send(result);
             }
         });
-       
+
+        // ! Delete Toy
+        app.delete('/api/delete-toy/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await toysCollection.deleteOne(query);
+            res.send(result);
+        });
 
         // ! Update Toy
 
