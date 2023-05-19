@@ -53,6 +53,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
+        // ! total toys
         app.get('/api/total-toys', async (req, res) => {
             const result = await toysCollection.estimatedDocumentCount();
             res.send({ totalToys: result });
@@ -75,10 +76,23 @@ async function run() {
         // ! GET TOYS BASED ON USER EMAIL 
         app.get('/api/user-toys', async (req, res) => {
             const query = req.query;
-            const cursor = toysCollection.find({ email: query.email });
-            const result = await cursor.toArray();
-            res.send(result);
+            const limit = parseInt(query.limit);
+            const page = parseInt(query.page);
+            const skip = (page - 1) * limit;
+
+            
+            if (!limit && !page) {
+                const cursor = toysCollection.find({ email: query.email });
+                const result = await cursor.toArray();
+                res.send(result);
+            } else{
+                const cursor = toysCollection.find({ email: query.email }).skip(skip).limit(limit);
+                const result = await cursor.toArray();
+                
+                res.send(result);
+            }
         });
+       
 
         // ! Update Toy
 
