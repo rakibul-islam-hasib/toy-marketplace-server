@@ -63,6 +63,7 @@ async function run() {
             // console.log(toy);
             res.send(result);
         });
+
         // ! Get Single Toy 
         app.get('/api/toy/:id', async (req, res) => {
             const id = req.params.id;
@@ -70,6 +71,16 @@ async function run() {
             const result = await toysCollection.findOne(query);
             res.send(result);
         });
+
+        // ! GET TOYS BASED ON USER EMAIL 
+        app.get('/api/user-toys', async (req, res) => {
+            const query = req.query;
+            const cursor = toysCollection.find({ email: query.email });
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // ! Update Toy
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
