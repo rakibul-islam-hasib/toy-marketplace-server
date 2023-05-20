@@ -27,7 +27,7 @@ async function run() {
         await client.connect();
         const database = client.db("toyStore");
         const toysCollection = database.collection("toys");
-
+        const todayCollection = database.collection("todayDeal");
         app.get('/api/toys', async (req, res) => {
             const query = req.query;
             const limit = parseInt(query.limit) || 10;
@@ -99,14 +99,9 @@ async function run() {
             const result = await toysCollection.deleteOne(query);
             res.send(result);
         });
-        // get data by shorting price high to low
-        app.get('/api/sort-high-to-low', async (req, res) => {
-            const query = req.query;
-            const sort = parseInt(query.sort) || -1;
-            const limit = parseInt(query.limit) || 10;
-            const page = parseInt(query.page) || 1;
-            const skip = (page - 1) * limit;
-            const cursor = toysCollection.find().sort({ price: sort }).skip(skip).limit(limit);
+        //  * Get Today's Deal data 
+        app.get('/api/today-deal', async (req, res) => {
+            const cursor = todayCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         });
@@ -119,10 +114,11 @@ async function run() {
             const updateDoc = {
                 $set: {
                     toyName: updatedToy.toyName,
-                    toyPrice: updatedToy.toyPrice,
-                    toyDescription: updatedToy.toyDescription,
-                    toyImage: updatedToy.toyImage,
+                    price: updatedToy.toyPrice,
+                    description: updatedToy.toyDescription,
+                    photo: updatedToy.toyImage,
                     email: updatedToy.email,
+                    ratings: updatedToy.ratings
                 },
             };
             const result = await toysCollection.updateOne(query, updateDoc, options);
@@ -132,8 +128,7 @@ async function run() {
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
+       
     }
 }
 run().catch(console.dir);
