@@ -76,6 +76,7 @@ async function run() {
         // ! GET TOYS BASED ON USER EMAIL 
         app.get('/api/user-toys', async (req, res) => {
             const query = req.query;
+            const sort = parseInt(query.sort) || -1;
             const limit = parseInt(query.limit);
             const page = parseInt(query.page);
             const skip = (page - 1) * limit;
@@ -84,7 +85,7 @@ async function run() {
                 const result = await cursor.toArray();
                 res.send(result);
             } else {
-                const cursor = toysCollection.find({ email: query.email }).skip(skip).limit(limit);
+                const cursor = toysCollection.find({ email: query.email }).sort({ price: sort }).skip(skip).limit(limit);
                 const result = await cursor.toArray();
 
                 res.send(result);
@@ -98,7 +99,17 @@ async function run() {
             const result = await toysCollection.deleteOne(query);
             res.send(result);
         });
-
+        // get data by shorting price high to low
+        app.get('/api/sort-high-to-low', async (req, res) => {
+            const query = req.query;
+            const sort = parseInt(query.sort) || -1;
+            const limit = parseInt(query.limit) || 10;
+            const page = parseInt(query.page) || 1;
+            const skip = (page - 1) * limit;
+            const cursor = toysCollection.find().sort({ price: sort }).skip(skip).limit(limit);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
         // ! Update Toy
         app.put('/api/update-toy/:id', async (req, res) => {
             const id = req.params.id;
