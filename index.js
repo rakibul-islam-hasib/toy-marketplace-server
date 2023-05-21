@@ -30,7 +30,7 @@ async function run() {
         const todayCollection = database.collection("todayDeal");
         app.get('/api/toys', async (req, res) => {
             const query = req.query;
-            const limit = parseInt(query.limit) || 10;
+            const limit = parseInt(query.limit) || 20;
             const page = parseInt(query.page) || 0;
             const skip = (page - 1) * limit;
             const cursor = toysCollection.find().skip(skip).limit(limit);
@@ -40,7 +40,7 @@ async function run() {
         // ! Make Search API
         app.get('/api/search', async (req, res) => {
             const query = req.query;
-            const limit = parseInt(query.limit) || 10;
+            const limit = parseInt(query.limit) || 20;
             const page = parseInt(query.page) || 0;
             const skip = (page - 1) * limit;
             const cursor = toysCollection.find({ toyName: { $regex: query.search, $options: 'i' } }).skip(skip).limit(limit);
